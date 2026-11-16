@@ -1,0 +1,41 @@
+CONFIGS_GKI=(spring_defconfig)
+
+MAKE_FLAGS=(
+  -j"$(nproc)"
+  ARCH=arm64
+  LLVM=1
+  LLVM_IAS=1
+  TARGET_BOARD_PLATFORM=blair
+  CC="ccache clang"
+  HOSTCC="ccache clang"
+  HOSTCXX="ccache clang++"
+  DEPMOD=depmod
+)
+
+export LOCALVERSION=
+
+spring_register_bbg() {
+  local current_lsm
+  current_lsm=$(sed -n 's/^CONFIG_LSM="\(.*\)"/\1/p' "${OUT}/.config")
+
+  case ",${current_lsm}," in
+    *,baseband_guard,*) ;;
+    *)
+      "${ROOT_DIR}/common/scripts/config" \
+        --file "${OUT}/.config" \
+        --set-str LSM "${current_lsm:+${current_lsm},}baseband_guard"
+      ;;
+  esac
+
+  make -C "${ROOT_DIR}/common" "${MAKE_FLAGS[@]}" O="${OUT}" olddefconfig
+}
+
+POST_DEFCONFIG_CMDS=spring_register_bbg
+
+# Spring's integrated WLAN driver must use standalone kernel paths.
+MAKE_FLAGS+=(
+  ANDROID_BUILD_TOP=
+  LINUX_BUILD_TOP=
+)
+
+AVBTOOL_GENERATES_FEC_BY_DEFAULT=0
