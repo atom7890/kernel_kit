@@ -39,3 +39,12 @@ MAKE_FLAGS+=(
 )
 
 AVBTOOL_GENERATES_FEC_BY_DEFAULT=0
+
+# Compatibility with the bundled avbtool.
+AVBTOOL_GENERATES_FEC_BY_DEFAULT=0
+
+# Skip AVB signing/footer creation for vendor_boot.
+AVB_SIGN_VENDOR_BOOT_IMG=0
+
+BOOT_OS_VERSION=17.0.0
+BOOT_OS_PATCH_LEVEL=2026-11
